@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">DrawCanvas</string>
+    <string name="toggle_colors">Toggle Colors</string>
+    <string name="chart_value">Chart Value</string>
+</resources>

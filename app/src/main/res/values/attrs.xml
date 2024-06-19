@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Define custom attributes here -->
+    <declare-styleable name="LineChartView">
+        <attr name="lineColor" format="color"/>
+        <attr name="lineWidth" format="dimension"/>
+    </declare-styleable>
+
+    <!-- Define the custom styleable attribute reference -->
+    <attr name="LineChartStyle" format="reference"/>
+</resources>
