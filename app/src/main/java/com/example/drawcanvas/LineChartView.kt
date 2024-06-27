@@ -1,5 +1,3 @@
-
-
 package com.example.drawcanvas
 
 import android.annotation.SuppressLint
@@ -16,6 +14,7 @@ import android.os.VibrationEffect
 import android.os.Vibrator
 import android.os.VibratorManager
 import android.util.AttributeSet
+import android.util.Log
 import android.view.MotionEvent
 import android.view.View
 import kotlin.math.roundToInt
@@ -41,16 +40,16 @@ open class LineChartView @JvmOverloads constructor(
         strokeWidth = 5f
     }
     private var yData: FloatArray = floatArrayOf()
-
-    //    private var touchX: Float = 0f
-//    private var touchY: Float = 0f
+    private val marginStart = 35f // Adjust this value as needed
+    private val marginEnd = 35f
     private var showTouchPoint: Boolean = false
     private var touchPoints = mutableListOf<Pair<Float, Float>>()
     private var activePointers = mutableMapOf<Int, Pair<Float, Float>>()
 
     @Suppress("DEPRECATION")
     private val vibrator: Vibrator = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-        val vibratorManager = context.getSystemService(Context.VIBRATOR_MANAGER_SERVICE) as VibratorManager
+        val vibratorManager =
+            context.getSystemService(Context.VIBRATOR_MANAGER_SERVICE) as VibratorManager
         vibratorManager.defaultVibrator
     } else {
         context.getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
@@ -119,7 +118,7 @@ open class LineChartView @JvmOverloads constructor(
             MotionEvent.ACTION_MOVE -> {
                 for (i in 0 until event.pointerCount) {
                     val pointerId = event.getPointerId(i)
-                    if (activePointers.containsKey(pointerId)) {
+                    if (activePointers.containsKey(pointerId) && isWithinBoundary(event.getX(i))) {
                         activePointers[pointerId] = Pair(event.getX(i), event.getY(i))
                     }
                 }
@@ -131,7 +130,6 @@ open class LineChartView @JvmOverloads constructor(
         }
         return super.onTouchEvent(event)
     }
-
 
     private fun showTouchPoints() {
         showTouchPoint = true
@@ -169,7 +167,7 @@ open class LineChartView @JvmOverloads constructor(
         vibrationHandler.removeCallbacks(stopVibrationRunnable)
         vibrationHandler.postDelayed(
             stopVibrationRunnable,
-            3
+            1
         ) // Stop vibration after 3 milliseconds
     }
 
@@ -217,14 +215,19 @@ open class LineChartView @JvmOverloads constructor(
     }
 
     private fun renderTouchPoint(canvas: Canvas) {
+        val startX = contentRect.left
+        val endX = contentRect.right
+        Log.d("LineChartView", "startX: $startX, endX: $endX")
         renderPaint.color = Color.RED
         renderPaint.style = Paint.Style.FILL_AND_STROKE
         renderPaint.strokeWidth = 2f
         // Draw lines for each active pointer
         activePointers.values.forEach { (x, y) ->
             val (minY, maxY) = getMinMaxYAtTouchPoint(x)
+            Log.d("X", "X: $x")
             // Draw the vertical line from the highest to the lowest y-value
             canvas.drawLine(x, minY, x, maxY, renderPaint)
+            //Log.d("relativePosition","relative position: $relativePosition")
         }
         activePointers.values.forEach { (x, y) ->
             val (minY, maxY) = getMinMaxYAtTouchPoint(x)
@@ -234,7 +237,24 @@ open class LineChartView @JvmOverloads constructor(
             val text = "$value"
             renderPaint.textSize = 30f
             renderPaint.color = Color.BLACK
-            canvas.drawText(text, x - renderPaint.measureText(text) / 2, middleY, renderPaint)
+            if (x >= startX && x <= startX + marginStart) {
+                // Draw text adjusted by marginStart
+                canvas.drawText(
+                    text,
+                    (startX + marginStart) - renderPaint.measureText(text) / 2,
+                    middleY,
+                    renderPaint
+                )
+            } else if (x <= endX && x >= endX - marginEnd) {
+                canvas.drawText(
+                    text,
+                    endX - marginEnd - renderPaint.measureText(text) / 2,
+                    middleY,
+                    renderPaint
+                )
+            } else {
+                canvas.drawText(text, x - renderPaint.measureText(text) / 2, middleY, renderPaint)
+            }
         }
         renderPaint.color = Color.GREEN
         renderPaint.style = Paint.Style.STROKE
@@ -245,9 +265,11 @@ open class LineChartView @JvmOverloads constructor(
     private fun getMinMaxYAtTouchPoint(touchX: Float): Pair<Float, Float> {
         var minY = Float.MAX_VALUE
         var maxY = Float.MIN_VALUE
+        Log.d("X", "touchX: $touchX")
         scaleHelper?.let {
             for (i in 0 until adapter!!.count) {
                 val x = it.getX(adapter!!.getX(i))
+
                 val y = it.getY(adapter!!.getY(i))
                 if (x == touchX) {
                     if (y < minY) minY = y
@@ -294,6 +316,5 @@ open class LineChartView @JvmOverloads constructor(
 //    val dy = y2 - y1
 //    return sqrt(dx * dx + dy * dy)
 //}
-
 
 // Reset the paint properties to their original state

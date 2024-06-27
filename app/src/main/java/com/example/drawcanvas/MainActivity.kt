@@ -26,8 +26,8 @@ class MainActivity : AppCompatActivity(), OnValueTextListener {
             10.9f, 13.2f, 15.4f, 13.9f, 11.8f, 10.5f, 11.7f, 13.5f, 15.6f, 17.3f, 18.9f, 20.2f,
             21.4f, 22.8f, 24.1f, 25.3f, 24.6f, 23.2f, 21.8f, 20.4f, 19.0f, 17.6f, 16.2f, 15.4f,
             12.3f, 14.1f, 16.8f, 14.7f, 12.5f, 15.0f, 17.2f, 15.8f, 18.3f, 20.7f, 23.4f, 23.4f,
-            23.4f, 23.4f, 23.4f, 23.4f, 10.9f, 13.2f, 15.4f, 13.9f, 11.8f, 10.5f, 11.7f, 13.5f,
-            15.6f, 17.3f, 18.9f, 20.2f,
+            23.4f, 23.4f, 23.4f, 23.4f, 23.4f, 23.4f, 10.9f, 13.2f, 15.4f, 13.9f, 11.8f, 10.5f,
+            11.7f, 13.5f, 15.6f, 17.3f, 18.9f, 20.2f,
         )
         val adapter = LineChartAdapter(yData)
         lineChartView.adapter = adapter
